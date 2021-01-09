@@ -16,3 +16,5 @@ _{"server_id":4,"request_count":1,"message":[]}_
 
 `$ curl localhost:8082`
 _{"server_id":1,"request_count":3,"message":[]}_
+
+`$ curl -X POST -H "Content-Type: application/json" -d '{"bad": "hello"}' localhost:8082/send`
