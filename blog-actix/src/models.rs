@@ -91,7 +91,7 @@ pub fn publish_post(conn: &SqliteConnection, post_id: i32) -> Result<Post> {
     })
 }
 
-pub fn all_posts<'a>(conn: &SqliteConnection) -> Result<Post> {
+pub fn all_posts(conn: &SqliteConnection) -> Result<Vec<(Post, User)>> {
     posts::table
         .order(posts::id.desc())
         .filter(posts::published.eq(true))
