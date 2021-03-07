@@ -64,3 +64,17 @@ curl -s -H "Content-Type: application/json" http://localhost:8998/users/1
 ```
 curl -s -H "Content-Type: application/json" http://localhost:8998/users/find/Steve
 ```
+
+# Post Oluşturma
+1. Migration dosyaları oluşturulur
+```
+diesel migration generate create_posts
+```
+2. Migration için Up.sql ve Down.sql dosyalarına sql kodları yazılır.
+    1. blog-actix\migrations\2021-03-07-124450_create_posts\up.sql
+    2. blog-actix\migrations\2021-03-07-124450_create_posts\down.sql
+3. Migration çalıştırılır.
+```
+diesel migration run
+```
+4. schema.rs dosyasının otomatik düzenlendiği görülür
