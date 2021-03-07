@@ -86,3 +86,244 @@ The concept of an association in Diesel is always from child to parent, i.e. the
 ```
 diesel migration generate create_comments
 ```
+
+# Örnek yorum kayıtları oluşturma
+```
+curl -s -X POST -H "Content-Type: application/json" -d "{\"title\":\"Frank says hello\",\"body\":\"Hello friends\"}" http://localhost:8998/users/1/posts
+```
+{
+"id": 1,
+"user_id": 1,
+"title": "Frank says hello",
+"body": "Hello friends",
+"published": false
+}
+
+```
+curl -s -X POST -H "Content-Type: application/json" -d "{\"title\":\"Bob is here too\",\"body\":\"Hello friends, also\"}" http://localhost:8998/users/2/posts
+```
+{
+"id": 2,
+"user_id": 2,
+"title": "Bob is here too",
+"body": "Hello friends, also",
+"published": false
+}
+
+### Publish a post
+```
+curl -s -X POST -H "Content-Type: application/json"  http://localhost:8998/posts/1/publish
+```
+{
+"id": 1,
+"user_id": 1,
+"title": "Frank says hello",
+"body": "Hello friends",
+"published": true
+}
+
+### Comment on a post
+```
+curl -s -X POST -H "Content-Type: application/json" -d "{\"user_id\":2,\"body\":\"Hi Frank, this is your friend Bob\"}" http://localhost:8998/posts/1/comments
+```
+{
+"id": 1,
+"user_id": 2,
+"post_id": 1,
+"body": "Hi Frank, this is your friend Bob"
+}
+
+### List all posts
+```
+curl -s -H "Content-Type: application/json" http://localhost:8998/posts
+```
+```
+[
+  [
+    [
+      {
+        "id": 1,
+        "user_id": 1,
+        "title": "Frank says hello",
+        "body": "Hello friends",
+        "published": true
+      },
+      {
+        "id": 1,
+        "username": "Frank"
+      }
+    ],
+    [
+      [
+        {
+          "id": 1,
+          "user_id": 2,
+          "post_id": 1,
+          "body": "Hi Frank, this is your friend Bob"
+        },
+        {
+          "id": 2,
+          "username": "Bob"
+        }
+      ]
+    ]
+  ]
+]
+```
+
+### See posts
+```
+curl -s -H "Content-Type: application/json" http://localhost:8998/users/1/posts
+```
+```
+[
+  [
+    {
+      "id": 2,
+      "user_id": 1,
+      "title": "Frank says hello",
+      "body": "Hello friends",
+      "published": false
+    },
+    [
+      
+    ]
+  ],
+  [
+    {
+      "id": 1,
+      "user_id": 1,
+      "title": "Frank says hello",
+      "body": "Hello friends",
+      "published": true
+    },
+    [
+      [
+        {
+          "id": 1,
+          "user_id": 2,
+          "post_id": 1,
+          "body": "Hi Frank, this is your friend Bob"
+        },
+        {
+          "id": 2,
+          "username": "Bob"
+        }
+      ]
+    ]
+  ]
+]
+```
+
+### Publish other post
+```
+curl -s -X POST -H "Content-Type: application/json" http://localhost:8998/posts/2/publish
+```
+```
+{
+  "id": 2,
+  "user_id": 2,
+  "title": "Bob is here too",
+  "body": "Hello friends, also",
+  "published": true
+}
+```
+
+### List all posts again
+```
+curl -s -H "Content-Type: application/json" http://localhost:8998/posts
+```
+```
+[
+  [
+    [
+      {
+        "id": 2,
+        "user_id": 1,
+        "title": "Frank says hello",
+        "body": "Hello friends",
+        "published": true
+      },
+      {
+        "id": 1,
+        "username": "Frank"
+      }
+    ],
+    [
+      
+    ]
+  ],
+  [
+    [
+      {
+        "id": 1,
+        "user_id": 1,
+        "title": "Frank says hello",
+        "body": "Hello friends",
+        "published": true
+      },
+      {
+        "id": 1,
+        "username": "Frank"
+      }
+    ],
+    [
+      [
+        {
+          "id": 1,
+          "user_id": 2,
+          "post_id": 1,
+          "body": "Hi Frank, this is your friend Bob"
+        },
+        {
+          "id": 2,
+          "username": "Bob"
+        }
+      ]
+    ]
+  ]
+]
+```
+
+### See users comments
+```
+curl -s -H "Content-Type: application/json" http://localhost:8998/users/2/comments
+```
+```
+[
+  [
+    {
+      "id": 1,
+      "user_id": 2,
+      "post_id": 1,
+      "body": "Hi Frank, this is your friend Bob"
+    },
+    {
+      "id": 1,
+      "title": "Frank says hello",
+      "published": true
+    }
+  ]
+]
+```
+
+### See post comments
+```
+curl -s -H "Content-Type: application/json" http://localhost:8998/posts/1/comments
+```
+```
+[
+  [
+    {
+      "id": 1,
+      "user_id": 2,
+      "post_id": 1,
+      "body": "Hi Frank, this is your friend Bob"
+    },
+    {
+      "id": 2,
+      "username": "Bob"
+    }
+  ]
+]
+```
