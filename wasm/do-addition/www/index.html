@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<script type="module">
+    // Wasm code must be asynchronously loaded at the time of this writing.
+    async function init() {
+        const {instance} = await WebAssembly.instantiateStreaming(
+            fetch("./do_addition.wasm")
+        );
+        // Our add function can be found as a property on the exports property of the instance object.
+        const answer = instance.exports.add(1, 2);
+        console.log(answer);
+    }
+
+    init();
+</script>
