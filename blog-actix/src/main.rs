@@ -1,5 +1,3 @@
-mod lib;
-
 use dotenv::dotenv;
 use std::env;
 

@@ -32,3 +32,35 @@
    
 1. Run migrations
   `diesel migration run`
+
+
+#[derive(Debug)]
+{:?} yazmak için kullanılır
+
+
+### Yeni kullanıcı oluştur
+```
+curl -s -X POST -H "Content-Type: application/json" -d "{\"username\":\"Frank\"}" http://localhost:8998/users
+```
+{"id":1,"username":"Frank"}
+
+### Yeni Bir kullanıcı daha oluştur
+```
+curl -s -X POST -H "Content-Type: application/json" -d "{\"username\":\"Bob\"}" http://localhost:8998/users
+```
+{"id":2,"username":"Bob"}
+
+### Kullanıcı adı ile kayıt bulmak
+```
+curl -s -H "Content-Type: application/json" http://localhost:8998/users/find/Frank
+```
+
+### Primary key ile kayıt bulmak
+```
+curl -s -H "Content-Type: application/json" http://localhost:8998/users/1
+```
+
+### Olmayan bir kayıt sorgulamak
+```
+curl -s -H "Content-Type: application/json" http://localhost:8998/users/find/Steve
+```
