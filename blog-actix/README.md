@@ -78,3 +78,5 @@ diesel migration generate create_posts
 diesel migration run
 ```
 4. schema.rs dosyasının otomatik düzenlendiği görülür
+
+The concept of an association in Diesel is always from child to parent, i.e. there is no “has many” like in other ORMs.
