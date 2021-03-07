@@ -43,6 +43,7 @@ impl Blog {
                 .wrap(middleware::Logger::default())
                 .configure(routes::users::configure)
                 .configure(routes::posts::configure)
+                .configure(routes::comments::configure)
         })
         .bind(("127.0.0.1", self.port))?
         .run()
