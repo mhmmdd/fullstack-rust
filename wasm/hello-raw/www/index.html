@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<script type="module">
+    async function init() {
+        const { instance } = await WebAssembly.instantiateStreaming(
+            fetch("./hello_raw.wasm")
+        );
+        const wasm = instance.exports;
+
+        // function puts the JavaScript string we took as an argument into the
+        // linear memory space shared between JavasScript and Wasm.
+        //
+        // We setup a try/finally block to ensure that the string that was just moved into the
+        // Wasm memory always gets freed even if something funky happens while we are interacting with our exposed Wasm function.
+        // Inside the try block, we first call the greet function that we exposed with the pointer
+        // and length we got and declare a local variable to hold the pointer to the String we get back.
+        // This pointer points to a chunk of memory inside the Wasm linear memory region.
+        function greet(arg0) {
+            const [ptr0, len0] = passStringToWasm(arg0);
+            try {
+                const retptr = wasm.greet(ptr0, len0);
+                // We can construct an array which contains unsigned 32-bit integers (exactly what the 32-bit Wasm memory region is)
+                // by passing the Wasm buffer into the Uint32Array constructor.
+                // This is the fundamental concept for working with the shared memory region between JavaScript and Wasm.
+                const mem = new Uint32Array(wasm.memory.buffer);
+                const rustptr = mem[retptr / 4];
+                const rustlen = mem[retptr / 4 + 1];
+                // Given a pointer to some bytes and a length, we use another utility function to extract a string
+                // from the Wasm memory region into JavaScript.
+                //
+                // We use slice to make a copy in JavaScript so we can safely tell Rust to free the memory it is currently using for that string.
+                const realRet = getStringFromWasm(rustptr, rustlen).slice();
+                // The following line where we call __boxed_str_free tells us that we need to implement this
+                // function over in Rust which will take a *mut String and do whatever is necessary to free it.
+                wasm.__boxed_str_free(retptr);
+                return realRet;
+            } finally {
+                wasm.__free(ptr0, len0);
+            }
+        }
+
+        function passStringToWasm(arg) {
+            // JavaScript provides an API for turning a string into a memory buffer via a TextEncoder object.
+            const buf = new TextEncoder('utf-8').encode(arg);
+            const len = buf.length;
+            // ask our Wasm instance to allocate memory of this particular size via a call to __malloc.
+            const ptr = wasm.__malloc(len);
+            // Finally, we create a Uint8Array with the Wasm memory buffer so that we can set the newly allocated memory
+            // to the bytes of our string
+            let array = new Uint8Array(wasm.memory.buffer);
+            array.set(buf, ptr);
+            // We then return the pointer and length which is all that is needed to reference the string in the Wasm memory region.
+            return [ptr, len];
+        }
+
+        function getStringFromWasm(ptr, len) {
+            // We get a Uint8Array view of the Wasm memory
+            const mem = new Uint8Array(wasm.memory.buffer);
+            // Use slice to copy the bytes into a new typed array specified by the starting and ending points.
+            const slice = mem.slice(ptr, ptr + len);
+            // Use TextDecoder to turn slice into a string, again assuming that the bytes represent a UTF-8 string.
+            const ret = new TextDecoder('utf-8').decode(slice);
+            return ret;
+        }
+
+        const result = greet("Rust");
+        console.log(result);
+    }
+
+    init();
+</script>
